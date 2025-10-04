@@ -2,10 +2,23 @@ import React from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { user, signInWithGoogle, logout, loading } = useAuth();
+  const { toggleTheme } = useTheme();
+  const [isDark, setIsDark] = React.useState(false);
+
+  React.useEffect(() => {
+    const root = document.documentElement;
+    const update = () => setIsDark(root.getAttribute("data-theme") === "dark");
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-800 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
@@ -40,6 +53,14 @@ export default function Header() {
             >
               Race
             </Link>
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="text-gray-300 hover:text-white p-2 rounded-lg transition-colors duration-300"
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25">
               Get Started
             </button>
@@ -111,6 +132,17 @@ export default function Header() {
               >
                 Race
               </Link>
+              <button
+                onClick={() => {
+                  toggleTheme();
+                }}
+                aria-label="Toggle theme"
+                className="text-gray-300 hover:text-white p-2 rounded-lg transition-colors duration-300 w-full flex items-center gap-2 justify-center"
+                title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                <span>{isDark ? "Light mode" : "Dark mode"}</span>
+              </button>
               <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 w-full">
                 Get Started
               </button>
@@ -176,3 +208,4 @@ export default function Header() {
     </header>
   );
 }
+
